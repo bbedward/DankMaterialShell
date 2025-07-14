@@ -16,6 +16,7 @@ import "Widgets/CenterCommandCenter"
 import "Widgets/ControlCenter"
 import "Common"
 import "Common/Utilities.js" as Utils
+import "Common/NotificationGrouping.js" as NotificationGrouping
 
 ShellRoot {
     id: root
@@ -230,6 +231,7 @@ ShellRoot {
             // Create notification object with correct properties (based on EXAMPLE)
             var notifObj = {
                 "id": notification.id,
+                "appId": notification.appId || notification.appName || "unknown",
                 "appName": notification.appName || "App",
                 "summary": notification.summary || "",
                 "body": notification.body || "",
@@ -245,12 +247,12 @@ ShellRoot {
                 "notification": notification  // Keep reference for action handling
             }
             
-            // Add to history (prepend to show newest first)
-            notificationHistory.insert(0, notifObj)
+            // Add to grouped notifications using our helper
+            NotificationGrouping.addOrUpdate(notificationGroups, notifObj)
             
-            // Keep only last 50 notifications
-            while (notificationHistory.count > 50) {
-                notificationHistory.remove(notificationHistory.count - 1)
+            // Keep only last 10 groups (each can have multiple notifications)
+            while (notificationGroups.count > 10) {
+                notificationGroups.remove(notificationGroups.count - 1)
             }
             
             // Show popup notification
@@ -259,10 +261,13 @@ ShellRoot {
         }
     }
     
-    // Notification History Model
+    // Notification Groups Model (replaces flat notificationHistory)
     ListModel {
-        id: notificationHistory
+        id: notificationGroups
     }
+    
+    // Legacy compatibility - for components that still reference notificationHistory
+    property alias notificationHistory: notificationGroups
     
     // Notification popup timer
     Timer {
@@ -303,7 +308,7 @@ ShellRoot {
             bluetoothAvailable: root.bluetoothAvailable
             bluetoothEnabled: root.bluetoothEnabled
             shellRoot: root
-            notificationCount: notificationHistory.count
+            notificationCount: NotificationGrouping.getTotalUnreadCount(notificationGroups)
             processDropdown: processListDropdown
             
             // Connect tray menu properties

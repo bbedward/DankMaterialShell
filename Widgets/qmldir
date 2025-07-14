@@ -22,3 +22,5 @@ SpotlightLauncher 1.0 SpotlightLauncher.qml
 SettingsPopup 1.0 SettingsPopup.qml
 SettingsSection 1.0 SettingsSection.qml
 SettingsToggle 1.0 SettingsToggle.qml
+GroupDelegate 1.0 GroupDelegate.qml
+NotificationDelegate 1.0 NotificationDelegate.qml

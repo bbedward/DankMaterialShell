@@ -6,6 +6,7 @@ import Quickshell.Widgets
 import Quickshell.Wayland
 import "../Common"
 import "../Common/Utilities.js" as Utils
+import "../Common/NotificationGrouping.js" as NotificationGrouping
 
 PanelWindow {
     id: notificationPopup
@@ -58,13 +59,8 @@ PanelWindow {
                 console.log("Popup clicked!")
                 if (root.activeNotification) {
                     root.handleNotificationClick(root.activeNotification)
-                    // Remove notification from history entirely
-                    for (let i = 0; i < notificationHistory.count; i++) {
-                        if (notificationHistory.get(i).id === root.activeNotification.id) {
-                            notificationHistory.remove(i)
-                            break
-                        }
-                    }
+                    // Remove notification from the appropriate group
+                    removeNotificationFromGroups(root.activeNotification.id)
                 }
                 // Always hide popup after click
                 Utils.hideNotificationPopup()
@@ -250,6 +246,21 @@ PanelWindow {
                     maximumLineCount: 2
                     elide: Text.ElideRight
                     visible: text.length > 0
+                }
+            }
+        }
+    }
+    
+    // Helper function to remove notification from grouped model
+    function removeNotificationFromGroups(notificationId) {
+        for (let groupIndex = 0; groupIndex < root.notificationHistory.count; groupIndex++) {
+            const group = root.notificationHistory.get(groupIndex)
+            const notifications = NotificationGrouping.getNotifications(group)
+            
+            for (let notifIndex = 0; notifIndex < notifications.length; notifIndex++) {
+                if (notifications[notifIndex].id === notificationId) {
+                    NotificationGrouping.clearNotification(root.notificationHistory, groupIndex, notifIndex)
+                    return
                 }
             }
         }

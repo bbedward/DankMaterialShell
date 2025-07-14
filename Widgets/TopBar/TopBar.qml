@@ -297,6 +297,7 @@ PanelWindow {
                 NotificationCenterButton {
                     anchors.verticalCenter: parent.verticalCenter
                     hasUnread: topBar.notificationCount > 0
+                    unreadCount: topBar.notificationCount
                     isActive: topBar.shellRoot ? topBar.shellRoot.notificationHistoryVisible : false
                     onClicked: {
                         if (topBar.shellRoot) {
